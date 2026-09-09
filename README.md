@@ -11,7 +11,12 @@ mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS gutendex CHARACTER SET utf8mb
 Get-Content gutendex.sql | mysql -u root -p gutendex
 ```
 
-2. Copy `.env.example` to `.env` and set your MySQL password.
+2. Create a local `.env` file and set `DATABASE_URL`. For a local MySQL
+   database, use the SQLAlchemy/PyMySQL form:
+
+```text
+DATABASE_URL=mysql+pymysql://root:your_password@127.0.0.1:3306/gutendex?charset=utf8mb4
+```
 
 3. Install and run:
 
@@ -25,6 +30,25 @@ python app.py
 The API listens on `http://127.0.0.1:5000`.
 
 Open **Swagger UI** at `http://127.0.0.1:5000/docs` to inspect and try the endpoints.
+
+## Deploying to Render
+
+Set these Render environment variables:
+
+```text
+DATABASE_URL=mysql+pymysql://user:password@host:3306/gutendex?charset=utf8mb4
+FLASK_DEBUG=false
+```
+
+Use these service commands:
+
+```text
+Build Command: pip install -r requirements.txt
+Start Command: gunicorn --bind 0.0.0.0:$PORT app:app
+```
+
+Render supplies `PORT` and Gunicorn is the production web server. Do not use
+`python app.py` as the Render start command.
 
 ## Tests
 

@@ -1,10 +1,11 @@
 import os
-from urllib.parse import quote_plus, urlencode
+from urllib.parse import urlencode
 
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request
 from flask_swagger_ui import get_swaggerui_blueprint
 from sqlalchemy import false, func, or_
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from models import Author, Book, Bookshelf, Format, Language, Subject, db
 from swagger import OPENAPI_SPEC
@@ -17,16 +18,17 @@ DISCOVERY_MAX_LIMIT = 100
 
 
 def database_uri():
-    user = quote_plus(os.getenv("MYSQL_USER", "root"))
-    password = quote_plus(os.getenv("MYSQL_PASSWORD", ""))
-    host = os.getenv("MYSQL_HOST", "127.0.0.1")
-    port = os.getenv("MYSQL_PORT", "3306")
-    name = os.getenv("MYSQL_DATABASE", "gutendex")
-    return f"mysql+pymysql://{user}:{password}@{host}:{port}/{name}?charset=utf8mb4"
+    database_url = os.getenv("DATABASE_URL")
+    if not database_url:
+        raise RuntimeError("DATABASE_URL must be set.")
+    return database_url
 
 
 def create_app(test_config=None):
     app = Flask(__name__)
+    # Render terminates HTTPS at a reverse proxy. Trust its forwarded host and
+    # protocol headers so generated pagination URLs use the public HTTPS URL.
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_host=1, x_proto=1)
     app.config["SQLALCHEMY_DATABASE_URI"] = database_uri()
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
@@ -340,4 +342,9 @@ app = create_app()
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    app.run(
+        debug=os.getenv("FLASK_DEBUG", "false").lower()
+        in {"1", "true", "yes", "on"},
+        host="127.0.0.1",
+        port=int(os.getenv("PORT", "5000")),
+    )
