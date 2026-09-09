@@ -7,10 +7,7 @@ OPENAPI_SPEC = {
             "Filter Project Gutenberg books by ID, language, mime-type, topic, "
             "author, and title. Results are ordered by download count (descending) "
             "and returned 25 at a time.\n\n"
-            "Multiple filters are combined with **AND**. Multiple values for the "
-            "same filter (comma-separated) are combined with **OR**.\n\n"
             "Topic matches **subject** or **bookshelf** with a case-insensitive "
-            "partial match (for example `topic=child`)."
         ),
     },
     "servers": [{"url": "/", "description": "Current host"}],
