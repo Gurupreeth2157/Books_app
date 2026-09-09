@@ -4,12 +4,8 @@ Flask + SQLAlchemy API over the Gutendex dump in `gutendex.sql`.
 
 ## Setup
 
-1. Create a database and load the dump (this file is large and can take several minutes):
+1. Create a database and load the dump (preferably using mysql workbench) 
 
-```powershell
-mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS gutendex CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-Get-Content gutendex.sql | mysql -u root -p gutendex
-```
 
 2. Create a local `.env` file and set `DATABASE_URL`. For a local MySQL
    database, use the SQLAlchemy/PyMySQL form:
@@ -27,28 +23,8 @@ pip install -r requirements.txt
 python app.py
 ```
 
-The API listens on `http://127.0.0.1:5000`.
-
 Open **Swagger UI** at `http://127.0.0.1:5000/docs` to inspect and try the endpoints.
 
-## Deploying to Render
-
-Set these Render environment variables:
-
-```text
-DATABASE_URL=mysql+pymysql://user:password@host:3306/gutendex?charset=utf8mb4
-FLASK_DEBUG=false
-```
-
-Use these service commands:
-
-```text
-Build Command: pip install -r requirements.txt
-Start Command: gunicorn --bind 0.0.0.0:$PORT app:app
-```
-
-Render supplies `PORT` and Gunicorn is the production web server. Do not use
-`python app.py` as the Render start command.
 
 ## Tests
 
@@ -66,6 +42,7 @@ pytest
 - `GET /openapi.json` — OpenAPI spec
 - `GET /` — usage notes
 - `GET /books` — filtered, paginated book list (25 per page)
+- `GET /filters/` — get filter options through series of filter APIs
 
 ### Query parameters
 
@@ -79,10 +56,3 @@ pytest
 | `title` | `title=alice` | Case-insensitive partial match |
 | `page` | `page=2` | 25 books per page |
 
-Filters are combined with AND. Multiple values for one filter are OR.
-
-### Example
-
-`http://127.0.0.1:5000/books?language=en,fr&topic=child&author=carroll`
-
-Response includes `count`, `next`, `previous`, and `results` with title, authors, languages, subjects/genre, bookshelves, and download links by mime-type. Books are ordered by `download_count` descending.
