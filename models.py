@@ -114,7 +114,10 @@ class Book(db.Model):
             "subjects": subject_names,
             "genre": subject_names,
             "bookshelves": [shelf.name for shelf in self.bookshelves],
-            "formats": {fmt.mime_type: fmt.url for fmt in self.formats},
+            "formats": [
+                {"mime_type": fmt.mime_type, "url": fmt.url}
+                for fmt in sorted(self.formats, key=lambda fmt: fmt.mime_type)
+            ],
             "media_type": self.media_type,
             "download_count": self.download_count or 0,
         }

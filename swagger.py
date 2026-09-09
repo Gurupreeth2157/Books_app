@@ -281,12 +281,29 @@ OPENAPI_SPEC = {
                         "items": {"type": "string", "example": "Children's Literature"},
                     },
                     "formats": {
-                        "type": "object",
-                        "additionalProperties": {"type": "string", "format": "uri"},
-                        "example": {
-                            "text/html": "https://www.gutenberg.org/ebooks/11.html.images",
-                            "application/epub+zip": "https://www.gutenberg.org/ebooks/11.epub.images",
+                        "type": "array",
+                        "description": "Download links, each paired with its MIME type.",
+                        "items": {
+                            "type": "object",
+                            "required": ["mime_type", "url"],
+                            "properties": {
+                                "mime_type": {
+                                    "type": "string",
+                                    "example": "application/epub+zip",
+                                },
+                                "url": {"type": "string", "format": "uri"},
+                            },
                         },
+                        "example": [
+                            {
+                                "mime_type": "text/html",
+                                "url": "https://www.gutenberg.org/ebooks/11.html.images",
+                            },
+                            {
+                                "mime_type": "application/epub+zip",
+                                "url": "https://www.gutenberg.org/ebooks/11.epub.images",
+                            },
+                        ],
                     },
                     "media_type": {"type": "string", "example": "Text"},
                     "download_count": {"type": "integer", "example": 15000},

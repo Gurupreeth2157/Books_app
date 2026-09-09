@@ -34,7 +34,15 @@ def test_filters_accept_multiple_values_and_combine_with_and(client):
     payload = response.get_json()
     assert payload["count"] == 1
     assert [book["id"] for book in payload["results"]] == [11]
-    assert payload["results"][0]["authors"][0]["name"] == "Carroll, Lewis"
+    book = payload["results"][0]
+    assert book["authors"][0]["name"] == "Carroll, Lewis"
+    assert book["formats"] == [
+        {
+            "mime_type": "application/epub+zip",
+            "url": "https://example.test/alice.epub",
+        },
+        {"mime_type": "text/plain", "url": "https://example.test/alice.txt"},
+    ]
 
 
 def test_topic_matches_subject_or_bookshelf_case_insensitively(client):
